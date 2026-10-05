@@ -1,0 +1,752 @@
+/* =========================================================
+   LAYOUT GENERAL
+========================================================= */
+
+.app-layout {
+  min-height: 100vh;
+  width: 100%;
+  background:
+    radial-gradient(
+      circle at top,
+      rgba(37, 132, 84, 0.045),
+      transparent 390px
+    ),
+    #f5f7f6;
+}
+
+
+/* =========================================================
+   NAVEGACIÓN FLOTANTE
+========================================================= */
+
+.floating-navigation-wrapper {
+  position: fixed;
+  top: 13px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  width: min(
+    calc(100% - 34px),
+    1180px
+  );
+
+  pointer-events: none;
+}
+
+
+/* =========================================================
+   BOTÓN MOSTRAR / OCULTAR
+========================================================= */
+
+.floating-toggle {
+  position: relative;
+  z-index: 3;
+
+  width: 38px;
+  height: 30px;
+
+  display: grid;
+  place-items: center;
+
+  margin-bottom: -2px;
+
+  border: 1px solid
+    rgba(16, 80, 49, 0.12);
+
+  border-bottom: 0;
+
+  border-radius:
+    13px 13px 5px 5px;
+
+  background:
+    rgba(255, 255, 255, 0.96);
+
+  color: #1f7048;
+
+  box-shadow:
+    0 -3px 13px
+      rgba(15, 23, 42, 0.035);
+
+  cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    color 0.2s ease;
+
+  pointer-events: auto;
+}
+
+.floating-toggle:hover {
+  background: #eaf5ef;
+  color: #145b39;
+  transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   BARRA PRINCIPAL
+========================================================= */
+
+.floating-navigation {
+  width: 100%;
+
+  min-height: 77px;
+
+  display: grid;
+
+  grid-template-columns:
+    minmax(155px, auto)
+    minmax(0, 1fr)
+    minmax(160px, auto);
+
+  align-items: center;
+
+  gap: 15px;
+
+  padding: 9px 12px 9px 20px;
+
+  border:
+    1px solid rgba(
+      15,
+      65,
+      40,
+      0.11
+    );
+
+  border-radius: 23px;
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.94
+    );
+
+  box-shadow:
+    0 14px 42px
+      rgba(
+        15,
+        35,
+        25,
+        0.11
+      );
+
+  backdrop-filter:
+    blur(18px);
+
+  -webkit-backdrop-filter:
+    blur(18px);
+
+  transform-origin: top center;
+
+  pointer-events: auto;
+
+  transition:
+    opacity 0.25s ease,
+    transform 0.3s ease,
+    max-height 0.3s ease,
+    padding 0.3s ease,
+    border 0.3s ease;
+}
+
+
+/* ABIERTA */
+
+.floating-navigation-open {
+  opacity: 1;
+  transform:
+    translateY(0)
+    scale(1);
+
+  max-height: 110px;
+}
+
+
+/* CERRADA */
+
+.floating-navigation-closed {
+  opacity: 0;
+
+  transform:
+    translateY(-25px)
+    scale(0.95);
+
+  max-height: 0;
+
+  min-height: 0;
+
+  padding-top: 0;
+  padding-bottom: 0;
+
+  border-width: 0;
+
+  overflow: hidden;
+
+  pointer-events: none;
+}
+
+
+/* =========================================================
+   MARCA
+========================================================= */
+
+.floating-brand {
+  display: flex;
+  flex-direction: column;
+
+  padding-left: 4px;
+
+  white-space: nowrap;
+}
+
+.floating-brand strong {
+  color: #143a29;
+
+  font-size: 1.08rem;
+
+  font-weight: 850;
+
+  letter-spacing:
+    -0.025em;
+}
+
+.floating-brand span {
+  margin-top: 2px;
+
+  color: #7a8880;
+
+  font-size: 0.67rem;
+
+  font-weight: 500;
+}
+
+
+/* =========================================================
+   NAVEGACIÓN
+========================================================= */
+
+.floating-nav {
+  min-width: 0;
+
+  display: flex;
+
+  justify-content: center;
+
+  align-items: center;
+
+  gap: 4px;
+
+  overflow-x: auto;
+
+  scrollbar-width: none;
+
+  -ms-overflow-style: none;
+}
+
+.floating-nav::-webkit-scrollbar {
+  display: none;
+}
+
+
+.floating-nav-link {
+  flex: 0 0 auto;
+
+  min-width: 82px;
+  min-height: 58px;
+
+  padding: 7px 10px;
+
+  display: flex;
+  flex-direction: column;
+
+  justify-content: center;
+  align-items: center;
+
+  gap: 5px;
+
+  border-radius: 15px;
+
+  color: #69776f;
+
+  text-decoration: none;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+
+.floating-nav-link:hover {
+  background: #f1f7f4;
+
+  color: #1d754a;
+
+  transform:
+    translateY(-1px);
+}
+
+
+.floating-nav-link.active {
+  background:
+    linear-gradient(
+      145deg,
+      #e3f3e9,
+      #eef8f2
+    );
+
+  color: #176841;
+
+  box-shadow:
+    inset 0 0 0 1px
+      rgba(
+        31,
+        122,
+        77,
+        0.08
+      );
+}
+
+
+.floating-nav-icon {
+  display: grid;
+
+  place-items: center;
+
+  height: 23px;
+}
+
+
+.floating-nav-link.active
+.floating-nav-icon {
+  color: #188151;
+}
+
+
+.floating-nav-text {
+  font-size: 0.69rem;
+
+  font-weight: 650;
+
+  line-height: 1;
+
+  white-space: nowrap;
+}
+
+
+/* Línea pequeña activa */
+
+.floating-nav-link.active::after {
+  content: "";
+
+  position: absolute;
+}
+
+
+/* =========================================================
+   USUARIO
+========================================================= */
+
+.floating-user {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: flex-end;
+
+  gap: 9px;
+
+  padding-left: 13px;
+
+  border-left:
+    1px solid #e8ece9;
+}
+
+
+.floating-user-avatar {
+  flex: 0 0 auto;
+
+  width: 39px;
+  height: 39px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 13px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #e2f2e8,
+      #f0f8f3
+    );
+
+  color: #176b43;
+
+  font-weight: 850;
+
+  font-size: 0.93rem;
+}
+
+
+.floating-user-info {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+}
+
+
+.floating-user-info strong {
+  max-width: 110px;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+
+  color: #27352d;
+
+  font-size: 0.79rem;
+}
+
+
+.floating-user-info span {
+  margin-top: 2px;
+
+  color: #8a958e;
+
+  font-size: 0.59rem;
+
+  font-weight: 700;
+}
+
+
+.floating-logout {
+  flex: 0 0 auto;
+
+  width: 38px;
+  height: 38px;
+
+  display: grid;
+  place-items: center;
+
+  border: none;
+
+  border-radius: 12px;
+
+  background: #f5f7f6;
+
+  color: #707d75;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+
+.floating-logout:hover {
+  background: #fff0f0;
+
+  color: #c64343;
+
+  transform:
+    translateY(-1px);
+}
+
+
+/* =========================================================
+   ÁREA PRINCIPAL
+========================================================= */
+
+.main-area {
+  width: 100%;
+
+  min-height: 100vh;
+
+  transition:
+    padding-top 0.3s ease;
+}
+
+
+/*
+ * Cuando la navegación está visible,
+ * dejamos espacio para que no cubra
+ * el contenido.
+ */
+
+.nav-visible .main-area {
+  padding-top: 116px;
+}
+
+
+/*
+ * Cuando está escondida,
+ * recuperamos bastante espacio.
+ */
+
+.nav-oculta .main-area {
+  padding-top: 48px;
+}
+
+
+.content {
+  width: min(
+    100%,
+    1480px
+  );
+
+  margin: 0 auto;
+
+  padding:
+    20px 34px 40px;
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (
+  max-width: 1100px
+) {
+
+  .floating-navigation {
+    grid-template-columns:
+      auto
+      minmax(0, 1fr)
+      auto;
+  }
+
+
+  .floating-brand span {
+    display: none;
+  }
+
+
+  .floating-brand {
+    padding-right: 5px;
+  }
+
+
+  .floating-nav-link {
+    min-width: 72px;
+
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+
+  .floating-user-info {
+    display: none;
+  }
+
+
+  .floating-user {
+    padding-left: 9px;
+  }
+
+}
+
+
+/* =========================================================
+   CELULAR / TABLET PEQUEÑA
+========================================================= */
+
+@media (
+  max-width: 760px
+) {
+
+  .floating-navigation-wrapper {
+    top: 8px;
+
+    width:
+      calc(100% - 16px);
+  }
+
+
+  .floating-toggle {
+    width: 40px;
+    height: 27px;
+  }
+
+
+  .floating-navigation {
+    grid-template-columns:
+      minmax(0, 1fr)
+      auto;
+
+    min-height: 69px;
+
+    gap: 7px;
+
+    padding:
+      7px 8px;
+  }
+
+
+  /*
+   * En celular ocultamos la marca
+   * para dar prioridad a los accesos.
+   */
+
+  .floating-brand {
+    display: none;
+  }
+
+
+  .floating-nav {
+    justify-content:
+      flex-start;
+
+    gap: 2px;
+
+    padding:
+      0 2px;
+  }
+
+
+  .floating-nav-link {
+    min-width: 65px;
+
+    min-height: 53px;
+
+    padding:
+      6px 7px;
+
+    border-radius: 13px;
+  }
+
+
+  .floating-nav-icon svg {
+    width: 19px;
+    height: 19px;
+  }
+
+
+  .floating-nav-text {
+    font-size: 0.61rem;
+  }
+
+
+  /*
+   * En celular mostramos solamente
+   * el avatar y cerrar sesión.
+   */
+
+  .floating-user {
+    gap: 4px;
+
+    padding-left: 6px;
+  }
+
+
+  .floating-user-avatar {
+    display: none;
+  }
+
+
+  .floating-user-info {
+    display: none;
+  }
+
+
+  .floating-logout {
+    width: 36px;
+    height: 36px;
+  }
+
+
+  .nav-visible .main-area {
+    padding-top: 103px;
+  }
+
+
+  .nav-oculta .main-area {
+    padding-top: 42px;
+  }
+
+
+  .content {
+    padding:
+      14px 15px 30px;
+  }
+
+}
+
+
+/* =========================================================
+   CELULARES PEQUEÑOS
+========================================================= */
+
+@media (
+  max-width: 480px
+) {
+
+  .floating-navigation-wrapper {
+    width:
+      calc(100% - 12px);
+  }
+
+
+  .floating-navigation {
+    border-radius: 18px;
+  }
+
+
+  .floating-nav-link {
+    min-width: 59px;
+  }
+
+
+  .floating-nav-text {
+    font-size: 0.57rem;
+  }
+
+
+  .floating-logout {
+    width: 34px;
+    height: 34px;
+
+    border-radius: 10px;
+  }
+
+
+  .content {
+    padding-left: 11px;
+    padding-right: 11px;
+  }
+
+}
+
+
+/* =========================================================
+   MOVIMIENTO REDUCIDO
+========================================================= */
+
+@media (
+  prefers-reduced-motion:
+    reduce
+) {
+
+  .floating-navigation,
+  .floating-nav-link,
+  .floating-toggle,
+  .floating-logout,
+  .main-area {
+    transition: none;
+  }
+
+}

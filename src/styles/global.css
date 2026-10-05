@@ -1,0 +1,49 @@
+:root {
+  font-family: Inter, system-ui, Arial, sans-serif;
+  color: #1f2937;
+  background: #f5f7f6;
+
+  --primary: #2f7d32;
+  --primary-dark: #245f27;
+  --primary-soft: #eaf5eb;
+
+  --sidebar: #173b21;
+  --sidebar-hover: #24512f;
+
+  --background: #f5f7f6;
+  --surface: #ffffff;
+
+  --text: #1f2937;
+  --text-soft: #6b7280;
+
+  --border: #e5e7eb;
+
+  --danger: #c0392b;
+
+  --radius: 14px;
+  --shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background: var(--background);
+  color: var(--text);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
