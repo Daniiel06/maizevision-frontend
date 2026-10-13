@@ -84,3 +84,7 @@ export async function crearLote(
 
   return response.data;
 }
+export async function obtenerResumenCierre(idCampania: string, signal?: AbortSignal): Promise<import('../types/campania.types').ResumenCierreCampania> {
+  const response = await apiClient.get('/campanias/' + idCampania + '/resumen-cierre', { signal });
+  return response.data;
+}

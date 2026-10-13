@@ -63,3 +63,10 @@ export interface CrearLoteResponse {
   fechaSiembra: string | null;
   estado: string;
 }
+export interface ResumenCierreCampania {
+  diagnosticosRealizados: number; revisados: number; correctos: number; numeroErrores: number;
+  pendientesRevision: number; conTiempoReal: number; sinTiempoReal: number;
+  plantasEvaluadas: number; diasEvaluados: number; intentosSinResultado: number;
+  exactitud: number | null; tiempoPromedioSegundos: number | null;
+  tieneDatosPendientes: boolean; revisionYTiempoCompletos: boolean;
+}

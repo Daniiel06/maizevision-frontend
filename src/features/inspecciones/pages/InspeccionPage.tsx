@@ -1,5 +1,10 @@
+import DescargarReporte from "../../reportes/DescargarReporte";
+import CronometroAtencion from "../utils/CronometroAtencion";
+import { iniciarAtencion, finalizarAtencion, conservarTiempo, usuarioMedicion } from "../utils/tiempoAtencion";
+import type { InicioAtencion, TiempoPendiente } from "../utils/tiempoAtencion";
 import {
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
 } from "react";
@@ -10,6 +15,7 @@ import type {
 
 import {
   useNavigate,
+  useLocation,
   useParams,
 } from "react-router-dom";
 
@@ -34,6 +40,8 @@ import {
 
 import {
   analizarImagen,
+  guardarTiempoAtencion,
+  sincronizarTiemposPendientes,
   subirImagenInspeccion,
   validarDiagnostico,
   obtenerClasesDiagnostico,
@@ -49,6 +57,16 @@ import "./InspeccionPage.css";
 
 
 export default function InspeccionPage() {
+  const location = useLocation();
+  const [inicioVista, setInicioVista] = useState<InicioAtencion>(() => location.state?.inicioAtencion ?? iniciarAtencion());
+  const inicioAtencion = useRef<InicioAtencion>(inicioVista);
+  const usuarioId = useRef(usuarioMedicion());
+  const [medicion, setMedicion] = useState<TiempoPendiente | null>(null);
+  const medicionRef = useRef<TiempoPendiente | null>(null);
+  const [guardadoTiempo, setGuardadoTiempo] = useState<"pendiente" | "guardado" | "error">("pendiente");
+  const montado = useRef(true);
+  const resultadoVisibleRef = useRef<HTMLElement | null>(null);
+
   const {
     idInspeccion,
   } = useParams();
@@ -169,6 +187,62 @@ export default function InspeccionPage() {
     useState(false);
 
 
+  useEffect(() => {
+    montado.current = true;
+    void sincronizarTiemposPendientes();
+    const sincronizar = () => { void sincronizarTiemposPendientes(); };
+    window.addEventListener("online", sincronizar);
+    return () => { montado.current = false; window.removeEventListener("online", sincronizar); };
+  }, []);
+
+  useEffect(() => {
+    // Consumir el inicio de navegación: volver atrás o recargar inicia otro intento.
+    if (location.state?.inicioAtencion) navigate(location.pathname + location.search, { replace: true, state: null });
+  }, [location.pathname, location.search, location.state, navigate]);
+
+  const guardarMedicion = async (dato: TiempoPendiente) => {
+    setGuardadoTiempo("pendiente");
+    try {
+      await guardarTiempoAtencion(dato);
+      if (montado.current && medicionRef.current?.idDiagnostico === dato.idDiagnostico) setGuardadoTiempo("guardado");
+    } catch {
+      if (montado.current && medicionRef.current?.idDiagnostico === dato.idDiagnostico) setGuardadoTiempo("error");
+    }
+  };
+
+  useLayoutEffect(() => {
+    if (!resultado || medicionRef.current?.idDiagnostico === resultado.idDiagnostico) return;
+    resultadoVisibleRef.current?.scrollIntoView({ behavior: "instant", block: "start" });
+    let segundoFrame = 0;
+    // Esperar una pintura con el resultado: no detener al terminar la IA en el servidor.
+    const primerFrame = requestAnimationFrame(() => {
+      segundoFrame = requestAnimationFrame(() => {
+        if (!montado.current) return;
+        const dato = { ...finalizarAtencion(inicioAtencion.current), idDiagnostico: resultado.idDiagnostico, usuarioId: usuarioId.current };
+        medicionRef.current = dato;
+        conservarTiempo(dato);
+        setMedicion(dato);
+        void guardarMedicion(dato);
+      });
+    });
+    return () => { cancelAnimationFrame(primerFrame); cancelAnimationFrame(segundoFrame); };
+  }, [resultado]);
+
+  const comenzarOtroDiagnostico = () => {
+    if (medicionRef.current) {
+      const siguienteInicio = iniciarAtencion();
+      inicioAtencion.current = siguienteInicio;
+      setInicioVista(siguienteInicio);
+      medicionRef.current = null;
+      setMedicion(null);
+      setGuardadoTiempo("pendiente");
+    }
+  };
+  const abrirFoto = (camara: boolean) => {
+    comenzarOtroDiagnostico();
+    (camara ? inputCamaraRef : inputGaleriaRef).current?.click();
+  };
+
   /* =====================================================
      LIBERAR PREVIEW
   ===================================================== */
@@ -259,6 +333,7 @@ export default function InspeccionPage() {
     }
 
 
+    comenzarOtroDiagnostico();
     limpiarResultadoAnterior();
 
 
@@ -388,6 +463,7 @@ export default function InspeccionPage() {
 
   const handleTomarOtraFoto =
     () => {
+      comenzarOtroDiagnostico();
       handleQuitarImagen();
 
 
@@ -430,6 +506,7 @@ export default function InspeccionPage() {
       }
 
 
+      comenzarOtroDiagnostico();
       try {
         setProcesando(
           true
@@ -495,6 +572,7 @@ export default function InspeccionPage() {
           );
 
 
+        if (!montado.current) return;
         setResultado(
           diagnostico
         );
@@ -715,7 +793,7 @@ export default function InspeccionPage() {
           type="button"
           className="inspeccion-volver"
           onClick={() =>
-            navigate(-1)
+            new URLSearchParams(location.search).get("grupo") ? navigate("/grupos/" + new URLSearchParams(location.search).get("grupo")) : new URLSearchParams(location.search).get("jornada") ? navigate("/jornadas/" + new URLSearchParams(location.search).get("jornada")) : navigate(-1)
           }
         >
           <ArrowLeft
@@ -745,6 +823,10 @@ export default function InspeccionPage() {
         </div>
 
       </header>
+      <CronometroAtencion inicio={inicioVista} terminadoMs={medicion?.tiempoAtencionMs} />
+      {medicion && <div className="atencion-guardado" role="status">
+        {guardadoTiempo === "guardado" ? "Tiempo real guardado para los indicadores." : guardadoTiempo === "pendiente" ? "Guardando la duración del diagnóstico..." : <>El resultado está listo, pero falta guardar el tiempo. <button type="button" onClick={() => { void guardarMedicion(medicion); }}>Reintentar guardado</button></>}
+      </div>}
 
 
       {/* ================================================
@@ -868,11 +950,7 @@ export default function InspeccionPage() {
               <button
                 type="button"
                 className="boton-camara"
-                onClick={() =>
-                  inputCamaraRef
-                    .current
-                    ?.click()
-                }
+                onClick={() => abrirFoto(true)}
                 disabled={
                   procesando
                 }
@@ -896,11 +974,7 @@ export default function InspeccionPage() {
               <button
                 type="button"
                 className="boton-galeria"
-                onClick={() =>
-                  inputGaleriaRef
-                    .current
-                    ?.click()
-                }
+                onClick={() => abrirFoto(false)}
                 disabled={
                   procesando
                 }
@@ -1241,7 +1315,7 @@ export default function InspeccionPage() {
       ================================================ */}
 
       {resultado && (
-        <section className="resultado-card">
+        <section ref={resultadoVisibleRef} className="resultado-card">
 
           <div className="resultado-header">
 
@@ -1273,6 +1347,8 @@ export default function InspeccionPage() {
 
           </div>
 
+
+          <DescargarReporte tipo="diagnostico" id={resultado.idDiagnostico} />
 
           <div className="resultado-grid">
 
@@ -1447,7 +1523,7 @@ export default function InspeccionPage() {
               />
 
               <span>
-                Tiempo total
+                Procesamiento del servidor
               </span>
 
               <strong>

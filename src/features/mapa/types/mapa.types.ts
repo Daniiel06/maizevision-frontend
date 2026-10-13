@@ -32,6 +32,7 @@ export interface FilaMapa {
 }
 
 export interface LoteMapa {
+  estadoCampania: string;
   idLote: string;
   codigo: string;
   nombre: string;

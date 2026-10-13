@@ -1866,3 +1866,10 @@
     font-size: 24px;
   }
 }
+.atencion-cronometro { display: flex; align-items: center; gap: 14px; background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; padding: 16px 20px; border-radius: 14px; }
+.atencion-cronometro div { display: flex; flex-direction: column; gap: 5px; }
+.atencion-cronometro span { font-size: .8rem; color: #475569; }
+.atencion-cronometro output { margin-left: auto; font-size: 1.8rem; font-weight: 750; font-variant-numeric: tabular-nums; }
+.atencion-guardado { color: #475569; font-size: .85rem; line-height: 1.5; }
+.atencion-guardado button { border: 1px solid #bfdbfe; border-radius: 8px; background: #eff6ff; color: #1e40af; padding: 8px 12px; margin-left: 8px; cursor: pointer; }
+@media (max-width: 480px) { .atencion-cronometro { flex-wrap: wrap; padding: 14px; } .atencion-cronometro output { font-size: 1.5rem; } }

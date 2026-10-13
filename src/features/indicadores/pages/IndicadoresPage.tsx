@@ -1,17 +1,16 @@
+import { Link } from "react-router-dom";
+import ErroresDetalle from "./ErroresDetalle";
+import TiempoDetalle from "./TiempoDetalle";
+import ExactitudDetalle from "./ExactitudDetalle";
 import {
   useEffect,
   useState,
 } from "react";
 
 import {
-  Activity,
   AlertTriangle,
-  BarChart3,
-  CheckCircle2,
   Clock3,
   RefreshCw,
-  ScanSearch,
-  ShieldCheck,
   Target,
 } from "lucide-react";
 
@@ -21,13 +20,15 @@ import {
 
 import type {
   IndicadoresResumen,
-  PrecisionClase,
 } from "../types/indicadores.types";
 
 import "./IndicadoresPage.css";
 
 
 export default function IndicadoresPage() {
+  const [verErrores, setVerErrores] = useState(false);
+  const [verTiempo, setVerTiempo] = useState(false);
+  const [verExactitud, setVerExactitud] = useState(false);
   const [
     resumen,
     setResumen,
@@ -90,6 +91,12 @@ export default function IndicadoresPage() {
     cargarIndicadores();
   }, []);
 
+
+  if (verErrores) return <ErroresDetalle volver={() => { setVerErrores(false); void cargarIndicadores(true); }} />;
+
+  if (verTiempo) return <TiempoDetalle volver={() => { setVerTiempo(false); void cargarIndicadores(true); }} />;
+
+  if (verExactitud) return <ExactitudDetalle volver={() => { setVerExactitud(false); void cargarIndicadores(true); }} />;
 
   if (cargando) {
     return (
@@ -184,6 +191,7 @@ export default function IndicadoresPage() {
             : "Actualizar datos"}
         </button>
 
+        <Link className="indicadores-actualizar" to="/grupos">Ver indicadores por grupos</Link>
       </header>
 
 
@@ -195,47 +203,35 @@ export default function IndicadoresPage() {
 
         <IndicadorCard
           clase="indicador-precision"
+          onClick={() => setVerExactitud(true)}
           icono={
             <Target size={25} />
           }
           numero={
             hayValidaciones
               ? `${formatearNumero(
-                  resumen.porcentajePrecision
+                  resumen.porcentajeExactitud
                 )} %`
               : "—"
           }
-          titulo="Precisión del diagnóstico"
+          titulo="Exactitud del diagnóstico"
           descripcion={
             hayValidaciones
               ? `${resumen.correctos} diagnósticos correctos de ${resumen.diagnosticosValidados} validados`
               : "Pendiente de validaciones del especialista"
           }
-          objetivo="Incrementar la precisión"
+          objetivo="Incrementar la exactitud"
           tendencia="positiva"
         />
 
 
         <IndicadorCard
           clase="indicador-tiempo"
-          icono={
-            <Clock3 size={25} />
-          }
-          numero={
-            resumen.totalDiagnosticos > 0
-              ? `${formatearNumero(
-                  resumen.tiempoPromedioMinutos
-                )} min`
-              : "—"
-          }
+          onClick={() => setVerTiempo(true)}
+          icono={<Clock3 size={25} />}
+          numero={resumen.diagnosticosConTiempo > 0 ? resumen.tiempoPromedioSegundos.toLocaleString("es-PE", { minimumFractionDigits: 3, maximumFractionDigits: 3 }) + " s" : "—"}
           titulo="Tiempo promedio de diagnóstico"
-          descripcion={
-            resumen.totalDiagnosticos > 0
-              ? `${formatearNumero(
-                  resumen.tiempoPromedioSegundos
-                )} segundos en promedio`
-              : "Todavía no existen diagnósticos"
-          }
+          descripcion={resumen.diagnosticosConTiempo > 0 ? "Tiempo real por planta · " + resumen.diagnosticosConTiempo + " diagnósticos con tiempo" : "Aún no hay tiempos reales registrados"}
           objetivo="Disminuir el tiempo"
           tendencia="negativa"
         />
@@ -243,370 +239,19 @@ export default function IndicadoresPage() {
 
         <IndicadorCard
           clase="indicador-error"
+          onClick={() => setVerErrores(true)}
           icono={
             <AlertTriangle size={25} />
           }
-          numero={
-            hayValidaciones
-              ? `${formatearNumero(
-                  resumen.porcentajeError
-                )} %`
-              : "—"
-          }
-          titulo="Error de identificación"
-          descripcion={
-            hayValidaciones
-              ? `${resumen.incorrectos} diagnósticos incorrectos de ${resumen.diagnosticosValidados} validados`
-              : "Pendiente de validaciones del especialista"
-          }
+          numero={hayValidaciones ? resumen.numeroErrores.toLocaleString("es-PE") : "—"}
+          titulo="Número de errores de diagnóstico"
+          descripcion={hayValidaciones ? "Errores confirmados en " + resumen.diagnosticosValidados + " diagnósticos revisados" : "Pendiente de revisión del especialista"}
           objetivo="Disminuir los errores"
           tendencia="negativa"
         />
 
       </section>
 
-
-      {/* =====================================================
-          ESTADO DE VALIDACIÓN
-      ===================================================== */}
-
-      <section className="indicadores-grid-superior">
-
-        <div className="panel-indicador panel-validacion">
-
-          <div className="panel-indicador-header">
-
-            <div>
-              <span className="panel-subtitulo">
-                CONTROL DE DATOS
-              </span>
-
-              <h2>
-                Estado de validación
-              </h2>
-            </div>
-
-            <ShieldCheck size={24} />
-
-          </div>
-
-
-          <div className="validacion-contenido">
-
-            <div
-              className="validacion-circulo"
-              style={{
-                background:
-                  `conic-gradient(
-                    var(--primary)
-                    ${Math.min(
-                      resumen.porcentajeValidacion,
-                      100
-                    )}%,
-                    #e8edf0
-                    0
-                  )`,
-              }}
-            >
-              <div className="validacion-circulo-centro">
-                <strong>
-                  {formatearNumero(
-                    resumen.porcentajeValidacion
-                  )} %
-                </strong>
-
-                <span>
-                  validado
-                </span>
-              </div>
-            </div>
-
-
-            <div className="validacion-resumen">
-
-              <ResumenDato
-                titulo="Diagnósticos realizados"
-                valor={resumen.totalDiagnosticos}
-              />
-
-              <ResumenDato
-                titulo="Validados por especialista"
-                valor={resumen.diagnosticosValidados}
-                clase="dato-correcto"
-              />
-
-              <ResumenDato
-                titulo="Pendientes de validación"
-                valor={resumen.diagnosticosPendientes}
-                clase="dato-pendiente"
-              />
-
-            </div>
-
-          </div>
-
-
-          <div className="validacion-barra">
-
-            <div className="validacion-barra-track">
-              <div
-                className="validacion-barra-fill"
-                style={{
-                  width:
-                    `${Math.min(
-                      resumen.porcentajeValidacion,
-                      100
-                    )}%`,
-                }}
-              />
-            </div>
-
-            <span>
-              {resumen.diagnosticosValidados}
-              {" de "}
-              {resumen.totalDiagnosticos}
-              {" diagnósticos revisados"}
-            </span>
-
-          </div>
-
-        </div>
-
-
-        {/* =================================================
-            CORRECTOS / INCORRECTOS
-        ================================================= */}
-
-        <div className="panel-indicador panel-resultados">
-
-          <div className="panel-indicador-header">
-
-            <div>
-              <span className="panel-subtitulo">
-                VALIDACIÓN PROFESIONAL
-              </span>
-
-              <h2>
-                Resultado de las validaciones
-              </h2>
-            </div>
-
-            <ScanSearch size={24} />
-
-          </div>
-
-
-          {!hayValidaciones ? (
-            <div className="sin-validaciones">
-
-              <ShieldCheck size={35} />
-
-              <strong>
-                Aún no hay diagnósticos validados
-              </strong>
-
-              <span>
-                La precisión y el error se calcularán
-                cuando el especialista revise los
-                diagnósticos.
-              </span>
-
-            </div>
-          ) : (
-            <div className="resultado-validaciones">
-
-              <ResultadoBarra
-                titulo="Correctos"
-                valor={resumen.correctos}
-                porcentaje={
-                  resumen.porcentajePrecision
-                }
-                tipo="correcto"
-              />
-
-              <ResultadoBarra
-                titulo="Incorrectos"
-                valor={resumen.incorrectos}
-                porcentaje={
-                  resumen.porcentajeError
-                }
-                tipo="incorrecto"
-              />
-
-
-              <div className="formula-indicador">
-
-                <div>
-                  <span>
-                    Precisión
-                  </span>
-
-                  <strong>
-                    {resumen.correctos}
-                    {" / "}
-                    {resumen.diagnosticosValidados}
-                    {" × 100"}
-                  </strong>
-                </div>
-
-
-                <div>
-                  <span>
-                    Error
-                  </span>
-
-                  <strong>
-                    100 % −{" "}
-                    {formatearNumero(
-                      resumen.porcentajePrecision
-                    )}
-                    {" %"}
-                  </strong>
-                </div>
-
-              </div>
-
-            </div>
-          )}
-
-        </div>
-
-      </section>
-
-
-      {/* =====================================================
-          PRECISIÓN POR CLASE
-      ===================================================== */}
-
-      <section className="panel-indicador panel-clases">
-
-        <div className="panel-indicador-header">
-
-          <div>
-            <span className="panel-subtitulo">
-              COMPORTAMIENTO DEL MODELO
-            </span>
-
-            <h2>
-              Precisión por clase diagnosticada
-            </h2>
-
-            <p>
-              Calculada únicamente con diagnósticos
-              revisados por el especialista.
-            </p>
-          </div>
-
-          <BarChart3 size={25} />
-
-        </div>
-
-
-        {resumen.precisionPorClase.length ===
-        0 ? (
-          <div className="clases-vacio">
-
-            <Activity size={34} />
-
-            <strong>
-              Sin información suficiente
-            </strong>
-
-            <span>
-              Las clases aparecerán cuando existan
-              diagnósticos validados.
-            </span>
-
-          </div>
-        ) : (
-          <div className="clases-lista">
-
-            {resumen.precisionPorClase.map(
-              clase => (
-                <PrecisionClaseFila
-                  key={clase.codigo}
-                  clase={clase}
-                />
-              )
-            )}
-
-          </div>
-        )}
-
-      </section>
-
-
-      {/* =====================================================
-          INTERPRETACIÓN DE INDICADORES
-      ===================================================== */}
-
-      <section className="indicadores-explicacion">
-
-        <div className="explicacion-card">
-
-          <div className="explicacion-icono explicacion-verde">
-            <Target size={21} />
-          </div>
-
-          <div>
-            <strong>
-              Precisión del diagnóstico
-            </strong>
-
-            <p>
-              Representa el porcentaje de diagnósticos
-              en los que la clase predicha por la IA
-              coincide con la validación realizada por
-              el especialista.
-            </p>
-          </div>
-
-        </div>
-
-
-        <div className="explicacion-card">
-
-          <div className="explicacion-icono explicacion-azul">
-            <Clock3 size={21} />
-          </div>
-
-          <div>
-            <strong>
-              Tiempo promedio
-            </strong>
-
-            <p>
-              Mide el tiempo transcurrido desde el inicio
-              de la inspección hasta que el sistema
-              genera el diagnóstico de la planta.
-            </p>
-          </div>
-
-        </div>
-
-
-        <div className="explicacion-card">
-
-          <div className="explicacion-icono explicacion-rojo">
-            <AlertTriangle size={21} />
-          </div>
-
-          <div>
-            <strong>
-              Error de identificación
-            </strong>
-
-            <p>
-              Corresponde al porcentaje de diagnósticos
-              validados que no coinciden con la
-              identificación realizada por el
-              especialista.
-            </p>
-          </div>
-
-        </div>
-
-      </section>
 
     </div>
   );
@@ -626,6 +271,7 @@ function IndicadorCard({
   descripcion,
   objetivo,
   tendencia,
+  onClick,
 }: {
   clase: string;
   icono: React.ReactNode;
@@ -634,11 +280,13 @@ function IndicadorCard({
   descripcion: string;
   objetivo: string;
   tendencia: "positiva" | "negativa";
+  onClick?: () => void;
 }) {
   return (
     <article
       className={`indicador-card ${clase}`}
     >
+      {onClick && <button type="button" className="indicador-abrir" onClick={onClick} aria-label={"Ver detalle de " + titulo.toLowerCase()}><span>Ver detalle diario →</span></button>}
 
       <div className="indicador-card-top">
 
@@ -668,141 +316,6 @@ function IndicadorCard({
       <p>
         {descripcion}
       </p>
-
-    </article>
-  );
-}
-
-
-function ResumenDato({
-  titulo,
-  valor,
-  clase = "",
-}: {
-  titulo: string;
-  valor: number;
-  clase?: string;
-}) {
-  return (
-    <div className="resumen-dato">
-
-      <div>
-        <span>
-          {titulo}
-        </span>
-      </div>
-
-      <strong className={clase}>
-        {valor}
-      </strong>
-
-    </div>
-  );
-}
-
-
-function ResultadoBarra({
-  titulo,
-  valor,
-  porcentaje,
-  tipo,
-}: {
-  titulo: string;
-  valor: number;
-  porcentaje: number;
-  tipo: "correcto" | "incorrecto";
-}) {
-  return (
-    <div className="resultado-barra">
-
-      <div className="resultado-barra-header">
-
-        <span>
-          {tipo === "correcto" ? (
-            <CheckCircle2 size={17} />
-          ) : (
-            <AlertTriangle size={17} />
-          )}
-
-          {titulo}
-        </span>
-
-        <strong>
-          {valor}
-          {" · "}
-          {formatearNumero(
-            porcentaje
-          )} %
-        </strong>
-
-      </div>
-
-
-      <div className="resultado-track">
-        <div
-          className={`resultado-fill resultado-fill-${tipo}`}
-          style={{
-            width:
-              `${Math.min(
-                porcentaje,
-                100
-              )}%`,
-          }}
-        />
-      </div>
-
-    </div>
-  );
-}
-
-
-function PrecisionClaseFila({
-  clase,
-}: {
-  clase: PrecisionClase;
-}) {
-  return (
-    <article className="clase-fila">
-
-      <div className="clase-fila-header">
-
-        <div>
-          <strong>
-            {clase.nombre}
-          </strong>
-
-          <span>
-            {clase.correctos}
-            {" correctos · "}
-            {clase.incorrectos}
-            {" incorrectos · "}
-            {clase.totalValidados}
-            {" validados"}
-          </span>
-        </div>
-
-
-        <strong className="clase-precision">
-          {formatearNumero(
-            clase.precision
-          )} %
-        </strong>
-
-      </div>
-
-
-      <div className="clase-track">
-        <div
-          className="clase-fill"
-          style={{
-            width:
-              `${Math.min(
-                clase.precision,
-                100
-              )}%`,
-          }}
-        />
-      </div>
 
     </article>
   );

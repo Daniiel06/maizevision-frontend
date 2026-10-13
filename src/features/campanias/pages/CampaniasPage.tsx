@@ -1,3 +1,4 @@
+import ResumenCierreModal from "./ResumenCierreModal";
 import {
   AlertTriangle,
   CalendarDays,
@@ -742,6 +743,7 @@ export default function CampaniasPage() {
 
 
             <div className="lotes-acciones">
+              {campaniaSeleccionada.estado.toUpperCase() === "FINALIZADA" && <button className="boton-secundario" onClick={() => { limpiarMensajes(); setMostrarConfirmacionFinalizar(true); }}>Ver resumen de campaña</button>}
 
               {campaniaSeleccionada.estado
                 .toUpperCase() ===
@@ -761,11 +763,7 @@ export default function CampaniasPage() {
 
                   <button
                     className="boton-finalizar"
-                    onClick={() =>
-                      setMostrarConfirmacionFinalizar(
-                        true
-                      )
-                    }
+                    onClick={() => { limpiarMensajes(); setMostrarConfirmacionFinalizar(true); }}
                   >
                     <Flag size={17} />
 
@@ -793,7 +791,7 @@ export default function CampaniasPage() {
                 <span>
                   La información permanece disponible
                   para consulta histórica, pero ya no
-                  se pueden agregar nuevos lotes.
+                  se pueden agregar nuevos lotes ni diagnósticos. Las revisiones pendientes siguen disponibles.
                 </span>
               </div>
             </div>
@@ -909,6 +907,8 @@ export default function CampaniasPage() {
                       </div>
 
 
+                      <button className="ver-mapa-button" onClick={() => navigate(`/lotes/${lote.idLote}/grupos`)}>Grupos de plantas</button>
+                      <button className="ver-mapa-button" onClick={() => navigate(`/lotes/${lote.idLote}/jornadas`)}>Jornadas diarias</button>
                       <button
                         className="ver-mapa-button"
                         onClick={() =>
@@ -1519,79 +1519,11 @@ export default function CampaniasPage() {
 
       {/* CONFIRMACIÓN FINALIZAR */}
 
-      {mostrarConfirmacionFinalizar &&
-        campaniaSeleccionada && (
-        <div className="modal-overlay">
-
-          <div className="modal-card modal-confirmacion">
-
-            <div className="confirmacion-icono">
-              <Flag size={27} />
-            </div>
-
-
-            <h2>
-              ¿Finalizar campaña?
-            </h2>
-
-
-            <p>
-              Estás por finalizar{" "}
-              <strong>
-                {
-                  campaniaSeleccionada.nombre
-                }
-              </strong>
-              .
-            </p>
-
-
-            <div className="confirmacion-aviso">
-              Una vez finalizada, la campaña
-              continuará disponible para consultar
-              sus lotes, mapas, diagnósticos e
-              historial, pero no se podrán agregar
-              nuevos lotes.
-            </div>
-
-
-            <div className="modal-acciones">
-
-              <button
-                className="boton-secundario"
-                onClick={() =>
-                  setMostrarConfirmacionFinalizar(
-                    false
-                  )
-                }
-                disabled={
-                  finalizando
-                }
-              >
-                Cancelar
-              </button>
-
-
-              <button
-                className="boton-finalizar-confirmar"
-                onClick={
-                  handleFinalizarCampania
-                }
-                disabled={
-                  finalizando
-                }
-              >
-                {finalizando
-                  ? "Finalizando..."
-                  : "Sí, finalizar campaña"}
-              </button>
-
-            </div>
-
-          </div>
-
-        </div>
-      )}
+      {mostrarConfirmacionFinalizar && campaniaSeleccionada && <ResumenCierreModal
+        key={campaniaSeleccionada.idCampania}
+        campania={campaniaSeleccionada} finalizando={finalizando} errorCierre={error}
+        cancelar={() => setMostrarConfirmacionFinalizar(false)} finalizar={() => { void handleFinalizarCampania(); }}
+      />}
 
     </div>
   );

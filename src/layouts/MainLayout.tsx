@@ -130,13 +130,12 @@ export default function MainLayout() {
 
           <nav className="floating-nav">
 
-            <NavItem
-              to="/dashboard"
-              icono={
-                <LayoutDashboard size={20} />
-              }
-              texto="Dashboard"
-            />
+
+            {usuario?.rol === "EVALUADOR" ? (
+              <NavItem to="/grupos" icono={<Users size={20}/>} texto="Mis grupos" />
+            ) : (
+              <NavItem to="/dashboard" icono={<LayoutDashboard size={20}/>} texto="Dashboard" />
+            )}
 
             <NavItem
               to="/clima"

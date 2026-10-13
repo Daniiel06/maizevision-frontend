@@ -1181,3 +1181,27 @@ button:disabled {
       100%;
   }
 }
+.cierre-campania-modal { width: min(760px, 94vw); max-height: 90vh; overflow-y: auto; }
+.cierre-campania-header { display: flex; align-items: center; gap: 14px; color: #166534; }
+.cierre-campania-header h2 { margin: 0; color: #172b21; font-size: 1.3rem; }
+.cierre-campania-header p { margin: 7px 0 0; color: #64748b; font-size: .88rem; }
+.cierre-volumen { display: flex; flex-wrap: wrap; gap: 12px 20px; margin: 24px 0 18px; color: #475569; font-size: .82rem; }
+.cierre-indicadores { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.cierre-indicadores article { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+.cierre-indicadores span { font-size: .82rem; color: #475569; }
+.cierre-indicadores strong { font-size: 1.65rem; color: #166534; }
+.cierre-indicadores small { font-size: .72rem; color: #64748b; }
+.cierre-pendientes { margin-top: 20px; }
+.cierre-pendientes h3 { font-size: .95rem; }
+.cierre-pendientes dl > div { display: flex; justify-content: space-between; gap: 12px; border-bottom: 1px solid #f1f5f9; padding: 10px 0; font-size: .83rem; }
+.cierre-pendientes dd { margin: 0; font-weight: 700; }
+.cierre-pendientes p, .cierre-explicacion { font-size: .8rem; color: #64748b; line-height: 1.6; }
+.cierre-estado { display: flex; gap: 10px; align-items: center; padding: 13px; border-radius: 10px; background: #fff7ed; color: #9a3412; font-size: .85rem; }
+.cierre-estado svg { flex-shrink: 0; }
+.cierre-estado.completo { background: #f0fdf4; color: #166534; }
+.cierre-reconocer { display: flex; align-items: flex-start; gap: 9px; padding: 12px 0; font-size: .85rem; line-height: 1.5; }
+.cierre-reconocer input { margin-top: 4px; }
+.cierre-error { color: #b91c1c; font-size: .85rem; }
+.cierre-acciones { flex-wrap: wrap; }
+.cierre-acciones button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; }
+@media (max-width: 600px) { .cierre-indicadores { grid-template-columns: 1fr; } .cierre-acciones button { flex: 1 1 120px; } }

@@ -1,3 +1,4 @@
+import axios from "axios";
 import { useState } from "react";
 
 import {
@@ -57,9 +58,11 @@ export default function LoginPage() {
         rol: response.rol,
       });
 
-      navigate("/dashboard");
-    } catch {
-      setError("Correo o contraseña incorrectos.");
+      navigate(response.rol === "EVALUADOR" ? "/grupos" : "/dashboard");
+    } catch (error) {
+      setError(axios.isAxiosError(error) && !error.response
+        ? "No se pudo conectar con la API. Comprueba que el backend esté iniciado."
+        : "Correo o contraseña incorrectos, o cuenta no habilitada.");
     } finally {
       setCargando(false);
     }

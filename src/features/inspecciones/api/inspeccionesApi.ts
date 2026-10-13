@@ -1,3 +1,5 @@
+import { tiemposPendientes, quitarTiempoPendiente } from "../utils/tiempoAtencion";
+import type { TiempoPendiente } from "../utils/tiempoAtencion";
 import { apiClient } from "../../../shared/api/apiClient";
 
 import type {
@@ -135,4 +137,17 @@ export async function obtenerClasesDiagnostico():
     );
 
   return response.data;
+}
+export async function guardarTiempoAtencion(medicion: TiempoPendiente): Promise<void> {
+  await apiClient.put("/diagnosticos/" + medicion.idDiagnostico + "/tiempo-atencion", {
+    tiempoAtencionMs: medicion.tiempoAtencionMs,
+    inicioAtencionUtc: medicion.inicioAtencionUtc,
+    resultadoVisibleUtc: medicion.resultadoVisibleUtc,
+  }, { timeout: 15000 });
+  quitarTiempoPendiente(medicion.idDiagnostico, medicion.usuarioId);
+}
+
+export async function sincronizarTiemposPendientes(): Promise<void> {
+  // Un fallo mantiene el dato original para reintentar; nunca se vuelve a cronometrar.
+  await Promise.allSettled(tiemposPendientes().map(guardarTiempoAtencion));
 }

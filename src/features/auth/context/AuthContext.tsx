@@ -1,7 +1,6 @@
 import {
   createContext,
   useContext,
-  useEffect,
   useState,
   type ReactNode,
 } from "react";
@@ -39,17 +38,14 @@ export function AuthProvider({
   );
 
   const [usuario, setUsuario] =
-    useState<UsuarioSesion | null>(null);
+    useState<UsuarioSesion | null>(() => {
+      try {
+        const value = JSON.parse(localStorage.getItem("maizevision_usuario") ?? "null");
+        return value && typeof value.idUsuario === "string" && typeof value.nombres === "string" &&
+          ["ADMINISTRADOR", "SUPERVISOR", "EVALUADOR"].includes(value.rol) ? value : null;
+      } catch { return null; }
+    });
 
-  useEffect(() => {
-    const usuarioGuardado = localStorage.getItem(
-      "maizevision_usuario"
-    );
-
-    if (usuarioGuardado) {
-      setUsuario(JSON.parse(usuarioGuardado));
-    }
-  }, []);
 
   const iniciarSesion = (
     nuevoToken: string,
@@ -82,7 +78,7 @@ export function AuthProvider({
       value={{
         usuario,
         token,
-        autenticado: !!token,
+        autenticado: !!token && !!usuario,
         iniciarSesion,
         cerrarSesion,
       }}

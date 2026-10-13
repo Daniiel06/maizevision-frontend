@@ -1,6 +1,9 @@
+import { iniciarAtencion } from "../../inspecciones/utils/tiempoAtencion";
+import type { InicioAtencion } from "../../inspecciones/utils/tiempoAtencion";
 import {
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 
@@ -84,6 +87,7 @@ const FILAS_POR_PAGINA = 8;
 
 
 export default function MapaLotePage() {
+  const entradaPlanta = useRef<InicioAtencion | null>(null);
   const { idLote } =
     useParams();
 
@@ -314,6 +318,7 @@ export default function MapaLotePage() {
     async (
       planta: PlantaMapa
     ) => {
+      entradaPlanta.current = iniciarAtencion();
       setPlantaSeleccionada(
         planta
       );
@@ -380,9 +385,10 @@ export default function MapaLotePage() {
 
   const handleIniciarInspeccion =
     async () => {
-      if (!plantaSeleccionada) {
+      if (!plantaSeleccionada || iniciandoInspeccion || lote?.estadoCampania !== "ACTIVA") {
         return;
       }
+      const inicioSeleccionado = entradaPlanta.current ?? iniciarAtencion();
 
       try {
         setIniciandoInspeccion(
@@ -400,7 +406,8 @@ export default function MapaLotePage() {
           });
 
         navigate(
-          `/inspecciones/${inspeccion.idInspeccion}`
+          `/inspecciones/${inspeccion.idInspeccion}`,
+          { state: { inicioAtencion: inicioSeleccionado } }
         );
       } catch (error) {
         console.error(
@@ -1794,14 +1801,14 @@ export default function MapaLotePage() {
                       handleIniciarInspeccion
                     }
                     disabled={
-                      iniciandoInspeccion
+                      iniciandoInspeccion || lote?.estadoCampania !== "ACTIVA"
                     }
                   >
                     <Camera
                       size={17}
                     />
 
-                    {iniciandoInspeccion
+                    {lote?.estadoCampania !== "ACTIVA" ? "Evaluaciones cerradas" : iniciandoInspeccion
                       ? "Iniciando..."
                       : plantaSeleccionada
                             .estadoInspeccion ===
@@ -2120,7 +2127,7 @@ export default function MapaLotePage() {
 
                                           <div>
                                             <span>
-                                              Tiempo total
+                                              Procesamiento del servidor
                                             </span>
 
                                             <strong>

@@ -13,6 +13,10 @@ import MapaLotePage from "./features/mapa/pages/MapaLotePage";
 import InspeccionPage from "./features/inspecciones/pages/InspeccionPage";
 import IndicadoresPage from "./features/indicadores/pages/IndicadoresPage";
 
+import GruposPage from "./features/grupos/GruposPage";
+
+import JornadasPage from "./features/jornadas/JornadasPage";
+
 import MainLayout from "./layouts/MainLayout";
 
 function App() {
@@ -42,6 +46,11 @@ function App() {
                   pero ya no aparece directamente
                   en la barra lateral. */}
 
+              <Route path="/grupos" element={<GruposPage key="grupos-general" />} />
+              <Route path="/lotes/:idLote/grupos" element={<GruposPage key="grupos-lote" />} />
+              <Route path="/grupos/:idGrupo" element={<GruposPage key="grupo-detalle" />} />
+              <Route path="/lotes/:idLote/jornadas" element={<JornadasPage key="lista-jornadas" />} />
+              <Route path="/jornadas/:idJornada" element={<JornadasPage key="detalle-jornada" />} />
               <Route path="/mapa/:idLote" element={<MapaLotePage />} />
 
               <Route

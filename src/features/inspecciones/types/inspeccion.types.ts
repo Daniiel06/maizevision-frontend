@@ -1,5 +1,7 @@
 export interface IniciarInspeccionRequest {
   idPlanta: string;
+  idJornada?: string;
+  idGrupo?: string;
   observaciones?: string;
 }
 
