@@ -7,12 +7,15 @@ import type {
 
 export async function obtenerClimaFundo(
   idFundo: string,
-  dias: 7 | 14
+  dias: 7 | 14,
+  signal?: AbortSignal
 ): Promise<ClimaFundo> {
   const response =
     await apiClient.get<ClimaFundo>(
       `/clima/fundos/${idFundo}`,
       {
+        signal,
+        timeout: 45000,
         params: {
           dias,
         },

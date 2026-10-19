@@ -17,7 +17,8 @@ import {
   X,
 } from "lucide-react";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import axios from "axios";
 
 import type { ReactNode } from "react";
 
@@ -91,6 +92,8 @@ export default function ClimaPage() {
   const [actualizando, setActualizando] = useState(false);
 
   const [toast, setToast] = useState<Toast | null>(null);
+  const [errorClima, setErrorClima] = useState<string | null>(null);
+  const solicitud = useRef<AbortController | null>(null);
 
   /* =======================================================
      TOAST
@@ -120,6 +123,11 @@ export default function ClimaPage() {
   ======================================================= */
 
   const obtenerMensajeError = (error: unknown) => {
+    if (axios.isAxiosError(error) && !error.response) {
+      return error.code === "ECONNABORTED"
+        ? "El servidor tardó demasiado en responder. Intenta nuevamente."
+        : "No se pudo establecer conexión con el servidor. Comprueba tu conexión e intenta nuevamente.";
+    }
     if (typeof error === "object" && error !== null && "response" in error) {
       const httpError = error as {
         response?: {
@@ -168,10 +176,17 @@ export default function ClimaPage() {
       return;
     }
 
+    solicitud.current?.abort();
+    const actual = new AbortController();
+    solicitud.current = actual;
+
     try {
       setActualizando(true);
+      setErrorClima(null);
+      setClima(null);
 
-      const data = await obtenerClimaFundo(fundoId, cantidadDias);
+      const data = await obtenerClimaFundo(fundoId, cantidadDias, actual.signal);
+      if (actual.signal.aborted) return;
 
       setClima(data);
 
@@ -179,13 +194,16 @@ export default function ClimaPage() {
         mostrarToast("Información agroclimática actualizada.", "exito");
       }
     } catch (error) {
+      if (actual.signal.aborted || axios.isCancel(error)) return;
       console.error("Error obteniendo clima:", error);
 
       setClima(null);
 
-      mostrarToast(obtenerMensajeError(error), "error");
+      const mensaje = obtenerMensajeError(error);
+      setErrorClima(mensaje);
+      mostrarToast(mensaje, "error");
     } finally {
-      setActualizando(false);
+      if (solicitud.current === actual) setActualizando(false);
     }
   };
 
@@ -194,9 +212,11 @@ export default function ClimaPage() {
   ======================================================= */
 
   useEffect(() => {
+    let vigente = true;
     const inicializar = async () => {
       try {
         const data = await obtenerFundos();
+        if (!vigente) return;
 
         const activosConUbicacion = data.filter(
           (fundo) =>
@@ -218,15 +238,19 @@ export default function ClimaPage() {
           );
         }
       } catch (error) {
+        if (!vigente) return;
         console.error(error);
 
-        mostrarToast("No se pudieron cargar los fundos.", "error");
+        const mensaje = obtenerMensajeError(error);
+        setErrorClima(mensaje);
+        mostrarToast(mensaje, "error");
       } finally {
-        setCargando(false);
+        if (vigente) setCargando(false);
       }
     };
 
     inicializar();
+    return () => { vigente = false; solicitud.current?.abort(); };
   }, []);
 
   /* =======================================================
@@ -370,10 +394,15 @@ export default function ClimaPage() {
 
           <h2>Información agroclimática no disponible</h2>
 
-          <p>
-            Comprueba que el fundo tenga una ubicación geográfica configurada y
-            vuelve a intentar.
+          <p role={errorClima ? "alert" : undefined}>
+            {errorClima ?? (fundos.length === 0
+              ? "No hay fundos activos con ubicación geográfica configurada. Revisa la ubicación en Fundos."
+              : actualizando ? "Consultando el pronóstico…" : "Selecciona un fundo y vuelve a intentar.")}
           </p>
+          {!actualizando && <button type="button" className="clima-actualizar"
+            onClick={() => idFundo ? cargarClima(idFundo, dias) : window.location.reload()}>
+            <RefreshCw size={17}/> Volver a intentar
+          </button>}
         </section>
       ) : (
         <>
