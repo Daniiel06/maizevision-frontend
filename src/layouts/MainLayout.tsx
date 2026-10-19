@@ -1,5 +1,6 @@
 import {
   BarChart3,
+  CalendarDays,
   ChevronDown,
   ChevronUp,
   CloudSun,
@@ -132,7 +133,7 @@ export default function MainLayout() {
 
 
             {usuario?.rol === "EVALUADOR" ? (
-              <NavItem to="/grupos" icono={<Users size={20}/>} texto="Mis grupos" />
+              <NavItem to="/jornadas" icono={<CalendarDays size={20}/>} texto="Mis jornadas" />
             ) : (
               <NavItem to="/dashboard" icono={<LayoutDashboard size={20}/>} texto="Dashboard" />
             )}

@@ -793,7 +793,7 @@ export default function InspeccionPage() {
           type="button"
           className="inspeccion-volver"
           onClick={() =>
-            new URLSearchParams(location.search).get("grupo") ? navigate("/grupos/" + new URLSearchParams(location.search).get("grupo")) : new URLSearchParams(location.search).get("jornada") ? navigate("/jornadas/" + new URLSearchParams(location.search).get("jornada")) : navigate(-1)
+            new URLSearchParams(location.search).get("grupo") ? navigate("/jornadas/asignadas/" + new URLSearchParams(location.search).get("grupo")) : new URLSearchParams(location.search).get("jornada") ? navigate("/jornadas/" + new URLSearchParams(location.search).get("jornada")) : navigate(-1)
           }
         >
           <ArrowLeft

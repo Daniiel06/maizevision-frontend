@@ -907,8 +907,7 @@ export default function CampaniasPage() {
                       </div>
 
 
-                      <button className="ver-mapa-button" onClick={() => navigate(`/lotes/${lote.idLote}/grupos`)}>Grupos de plantas</button>
-                      <button className="ver-mapa-button" onClick={() => navigate(`/lotes/${lote.idLote}/jornadas`)}>Jornadas diarias</button>
+                      <button className="ver-mapa-button" onClick={() => navigate(`/lotes/${lote.idLote}/jornadas`)}>Jornadas</button>
                       <button
                         className="ver-mapa-button"
                         onClick={() =>

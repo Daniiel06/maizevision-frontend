@@ -15,8 +15,6 @@ import IndicadoresPage from "./features/indicadores/pages/IndicadoresPage";
 
 import GruposPage from "./features/grupos/GruposPage";
 
-import JornadasPage from "./features/jornadas/JornadasPage";
-
 import MainLayout from "./layouts/MainLayout";
 
 function App() {
@@ -46,11 +44,16 @@ function App() {
                   pero ya no aparece directamente
                   en la barra lateral. */}
 
-              <Route path="/grupos" element={<GruposPage key="grupos-general" />} />
+              {/* Jornadas usa la planificación con responsable que antes se mostraba como grupos.
+                  Las rutas /grupos se conservan para enlaces existentes; la API no cambia aún. */}
+              <Route path="/jornadas" element={<GruposPage key="jornadas-general" />} />
+              <Route path="/lotes/:idLote/jornadas" element={<GruposPage key="jornadas-lote" />} />
+              <Route path="/jornadas/asignadas/:idGrupo" element={<GruposPage key="jornada-asignada" />} />
+              <Route path="/grupos" element={<Navigate to="/jornadas" replace />} />
               <Route path="/lotes/:idLote/grupos" element={<GruposPage key="grupos-lote" />} />
               <Route path="/grupos/:idGrupo" element={<GruposPage key="grupo-detalle" />} />
-              <Route path="/lotes/:idLote/jornadas" element={<JornadasPage key="lista-jornadas" />} />
-              <Route path="/jornadas/:idJornada" element={<JornadasPage key="detalle-jornada" />} />
+              {/* Los IDs de las jornadas anteriores no son IDs de grupo. No se mezclan. */}
+              <Route path="/jornadas/:idJornada" element={<Navigate to="/jornadas" replace />} />
               <Route path="/mapa/:idLote" element={<MapaLotePage />} />
 
               <Route

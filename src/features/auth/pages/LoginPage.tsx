@@ -58,7 +58,7 @@ export default function LoginPage() {
         rol: response.rol,
       });
 
-      navigate(response.rol === "EVALUADOR" ? "/grupos" : "/dashboard");
+      navigate(response.rol === "EVALUADOR" ? "/jornadas" : "/dashboard");
     } catch (error) {
       setError(axios.isAxiosError(error) && !error.response
         ? "No se pudo conectar con la API. Comprueba que el backend esté iniciado."

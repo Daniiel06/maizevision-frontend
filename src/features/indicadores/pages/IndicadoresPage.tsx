@@ -191,7 +191,7 @@ export default function IndicadoresPage() {
             : "Actualizar datos"}
         </button>
 
-        <Link className="indicadores-actualizar" to="/grupos">Ver indicadores por grupos</Link>
+        <Link className="indicadores-actualizar" to="/jornadas">Ver indicadores por jornadas</Link>
       </header>
 
 

@@ -50,7 +50,7 @@ export default function ExactitudDetalle({ volver }: { volver: () => void }) {
       <button className="indicadores-actualizar" disabled={cargando} onClick={() => { setCargando(true); setRevision(x => x + 1); }}>
         <RefreshCw size={17} className={cargando ? "girando" : ""} /> {cargando ? "Actualizando..." : "Actualizar datos"}
       </button>
-      <Link className="indicadores-actualizar" to="/grupos">Ver por grupos de plantas</Link>
+      <Link className="indicadores-actualizar" to="/jornadas">Ver por jornadas</Link>
     </header>
     <form className="panel-indicador exactitud-filtros" onSubmit={e => {
       e.preventDefault();
