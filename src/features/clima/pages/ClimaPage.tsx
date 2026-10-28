@@ -17,7 +17,7 @@ import {
   X,
 } from "lucide-react";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import axios from "axios";
 
 import type { ReactNode } from "react";
@@ -99,12 +99,12 @@ export default function ClimaPage() {
      TOAST
   ======================================================= */
 
-  const mostrarToast = (mensaje: string, tipo: Toast["tipo"]) => {
+  const mostrarToast = useCallback((mensaje: string, tipo: Toast["tipo"]) => {
     setToast({
       mensaje,
       tipo,
     });
-  };
+  }, []);
 
   useEffect(() => {
     if (!toast) {
@@ -122,7 +122,7 @@ export default function ClimaPage() {
      ERRORES
   ======================================================= */
 
-  const obtenerMensajeError = (error: unknown) => {
+  const obtenerMensajeError = useCallback((error: unknown) => {
     if (axios.isAxiosError(error) && !error.response) {
       return error.code === "ECONNABORTED"
         ? "El servidor tardó demasiado en responder. Intenta nuevamente."
@@ -160,17 +160,19 @@ export default function ClimaPage() {
       }
     }
 
+    if (error instanceof Error) return error.message;
     return "No se pudo obtener la información meteorológica.";
-  };
+  }, []);
 
   /* =======================================================
      CARGAR CLIMA
   ======================================================= */
 
-  const cargarClima = async (
+  const cargarClima = useCallback(async (
     fundoId: string,
     cantidadDias: 7 | 14,
     mostrarExito = false,
+    fundoInicial?: Fundo,
   ) => {
     if (!fundoId) {
       return;
@@ -185,7 +187,8 @@ export default function ClimaPage() {
       setErrorClima(null);
       setClima(null);
 
-      const data = await obtenerClimaFundo(fundoId, cantidadDias, actual.signal);
+      const data = await obtenerClimaFundo(fundoId, cantidadDias, actual.signal,
+        fundoInicial);
       if (actual.signal.aborted) return;
 
       setClima(data);
@@ -205,7 +208,7 @@ export default function ClimaPage() {
     } finally {
       if (solicitud.current === actual) setActualizando(false);
     }
-  };
+  }, [mostrarToast, obtenerMensajeError]);
 
   /* =======================================================
      INICIALIZAR
@@ -230,7 +233,7 @@ export default function ClimaPage() {
 
           setIdFundo(primero.idFundo);
 
-          await cargarClima(primero.idFundo, 7);
+          await cargarClima(primero.idFundo, 7, false, primero);
         } else {
           mostrarToast(
             "No existen fundos activos con ubicación configurada.",
@@ -251,7 +254,7 @@ export default function ClimaPage() {
 
     inicializar();
     return () => { vigente = false; solicitud.current?.abort(); };
-  }, []);
+  }, [cargarClima, mostrarToast, obtenerMensajeError]);
 
   /* =======================================================
      CAMBIO FUNDO
@@ -260,7 +263,7 @@ export default function ClimaPage() {
   const handleCambiarFundo = async (nuevoId: string) => {
     setIdFundo(nuevoId);
 
-    await cargarClima(nuevoId, dias);
+    await cargarClima(nuevoId, dias, false, fundos.find(f => f.idFundo === nuevoId));
   };
 
   /* =======================================================
@@ -271,7 +274,7 @@ export default function ClimaPage() {
     setDias(nuevosDias);
 
     if (idFundo) {
-      await cargarClima(idFundo, nuevosDias);
+      await cargarClima(idFundo, nuevosDias, false, fundos.find(f => f.idFundo === idFundo));
     }
   };
 
@@ -379,7 +382,7 @@ export default function ClimaPage() {
           <button
             type="button"
             className="clima-actualizar"
-            onClick={() => cargarClima(idFundo, dias, true)}
+            onClick={() => cargarClima(idFundo, dias, true, fundos.find(f => f.idFundo === idFundo))}
             disabled={!idFundo || actualizando}
           >
             <RefreshCw size={17} className={actualizando ? "girando" : ""} />
@@ -400,7 +403,7 @@ export default function ClimaPage() {
               : actualizando ? "Consultando el pronóstico…" : "Selecciona un fundo y vuelve a intentar.")}
           </p>
           {!actualizando && <button type="button" className="clima-actualizar"
-            onClick={() => idFundo ? cargarClima(idFundo, dias) : window.location.reload()}>
+            onClick={() => idFundo ? cargarClima(idFundo, dias, false, fundos.find(f => f.idFundo === idFundo)) : window.location.reload()}>
             <RefreshCw size={17}/> Volver a intentar
           </button>}
         </section>
